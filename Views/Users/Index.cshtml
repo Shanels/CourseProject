@@ -1,0 +1,91 @@
+﻿@model IEnumerable<CourseProject.Areas.Identity.Data.ApplicationUser>
+@using Microsoft.AspNetCore.Identity
+@using CourseProject.Areas.Identity.Data
+
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "User list";
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info  alert-dismissible" >
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="ProcessSelected" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3 d-flex gap-1">
+        <button type="submit" name="actionType" value="Block" class="btn btn-primary ">
+            Block
+        </button>
+
+        <button type="submit" name="actionType" value="Unblock" class="btn btn-primary">
+            Unblock
+        </button>
+
+        <button type="submit" name="actionType" value="Delete" class="btn btn-danger">
+            Delete
+        </button>
+
+        <div class="input-group ms-auto w-auto">
+            <select class="form-select" name="selectedRole" aria-label="Role assign">
+                <option disabled selected>Select role</option>
+                <option value="Admin">Admin</option>
+                <option value="User">User</option>
+            </select>
+            <button type="submit" name="actionType" value="AssignRole" class="btn btn-primary">
+                Assign
+            </button>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col"><input type="checkbox" id="selectAll" /></th>
+                <th scope="col">Email</th>
+                <th scope="col">Last Login</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td><input type="checkbox" name="selectedUsers" value="@user.Id" /></td>
+                    <td>@user.Email</td>
+                    <td>@user.LastLogin UTC</td>
+                    <td>@UserManager.GetRolesAsync(user).Result.FirstOrDefault()</td>
+                    <td>@(user.LockoutEnd.HasValue ? $"Blocked" : "Active")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const userCheckboxes = document.querySelectorAll('input[type="checkbox"][name="selectedUsers"]');
+
+        selectAllCheckbox.addEventListener('click', toggleAllCheckboxes);
+        userCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateSelectAllState));
+
+        function toggleAllCheckboxes() {
+            const isChecked = selectAllCheckbox.checked;
+            userCheckboxes.forEach(checkbox => checkbox.checked = isChecked);
+            updateSelectAllState();
+        }
+
+        function updateSelectAllState() {
+            const checkedCount = Array.from(userCheckboxes).filter(checkbox => checkbox.checked).length;
+            selectAllCheckbox.checked = checkedCount === userCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < userCheckboxes.length;
+        }
+    });
+</script>

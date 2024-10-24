@@ -1,0 +1,70 @@
+﻿@model IEnumerable<CourseProject.Models.Question>
+
+@{
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+
+<div class="input-group ms-auto w-auto pb-3">
+    <input type="text" id="label" class="form-control w-auto" placeholder="Untitled question" />
+    <input type="hidden" id="templateId" value='@ViewData["TemplateId"]' />
+    <select id="type" class="form-select" asp-items="Html.GetEnumSelectList<CourseProject.Models.Question.QestionTypes>()"></select>
+    <button id="addQuestionBtn" class="btn btn-primary">Add question</button>
+</div>
+
+<div id="questionsList">
+        <partial name="~/Views/Shared/_QuestionsListPartial.cshtml" model="@Model" />
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#addQuestionBtn').click(function () {
+                const templateId = $('#templateId').val();
+                const label = $('#label').val();
+                const type = $('#type').val();
+
+                $(this).prop('disabled', true);
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Questions")',
+                    type: 'POST',
+                    data: { templateId: templateId, label: label, type: type },
+                    success: function (data) {
+                        $('#questionsList').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        alert("An error occurred: " + error);
+                    },
+                    complete: function () {
+                        $('#addQuestionBtn').prop('disabled', false);
+                    }
+                });
+            });
+
+            $('#questionsList').on('click', '.removeQuestionBtn', function () {
+                const itemId = $(this).data('id');
+                const templateId = $('#templateId').val();
+
+                $(this).prop('disabled', true);
+
+                $.ajax({
+                    url: '@Url.Action("Delete", "Questions")',
+                    type: 'POST',
+                    data: { id: itemId, templateId: templateId },
+                    success: function (response) {
+                        $('#questionsList').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        alert("An error occurred: " + error);
+                    },
+                    complete: function () {
+                        $(this).prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using CourseProject.Areas.Identity.Data
+
+<ul class="navbar-nav">
+    @if (User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Templates" asp-action="Index">Templates</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Users</a>
+        </li>
+    }
+</ul>

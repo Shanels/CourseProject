@@ -1,0 +1,13 @@
+﻿@model IEnumerable<CourseProject.Models.Question>
+
+<ul class="list-group">
+    @foreach (var item in Model)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center py-0 px-2">
+            <div class="flex-grow-1">@Html.DisplayFor(modelItem => item.Label)</div>
+
+            <span class="badge bg-primary rounded-pill m-3">@Html.DisplayFor(modelItem => item.Type)</span>
+            <button class="removeQuestionBtn btn btn-primary" data-id="@item.Id">X</button>
+        </li>
+    }
+</ul>
